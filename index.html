@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>تقویم شمسی هوشمند</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
@@ -11,123 +11,146 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@700;900&display=swap" rel="stylesheet">
-    <!-- کتابخانه تقویم از CDN معتبر -->
-    <script src="https://cdn.jsdelivr.net/npm/jalaali-js@1.2.1/dist/jalaali.min.js"></script>
     <style>
         :root {
-            /* تم روشن */
-            --bg: #f2f4f8;
-            --card-bg: #ffffff;
-            --text: #1a1a2e;
-            --text-muted: #64748b;
-            --accent: #e94560;
-            --friday-bg: #e94560;
-            --friday-text: #ffffff;
-            --today-border: #3b82f6;
-            --reminder-color: #f59e0b;
-            --border: #e2e8f0;
+            --bg: #f2f4f8; --card-bg: #ffffff; --text: #1a1a2e; --text-muted: #64748b;
+            --accent: #e94560; --friday-bg: #e94560; --friday-text: #ffffff;
+            --today-border: #3b82f6; --reminder-color: #f59e0b; --border: #94a3b8;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Vazirmatn', Tahoma, sans-serif;
-            background: var(--bg); color: var(--text);
-            min-height: 100vh; display: flex; flex-direction: column;
-            align-items: center; padding: 16px;
-            user-select: none; font-weight: 700;
+        html, body {
+            overflow-x: hidden; width: 100%;
         }
-        .container { max-width: 900px; width: 100%; }
+        body {
+            font-family: 'Vazirmatn', Tahoma, sans-serif; background: var(--bg); color: var(--text);
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+            padding: 12px; user-select: none; font-weight: 700;
+        }
+        .container { 
+            max-width: 900px; width: 100%; display: flex; flex-direction: column;
+        }
         header {
             display: flex; justify-content: space-between; align-items: center;
-            background: var(--card-bg); padding: 16px 24px; border-radius: 16px;
-            margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            background: var(--card-bg); padding: 16px; border-radius: 16px;
+            margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 2px solid var(--border);
         }
-        .month-title { font-size: 1.8rem; font-weight: 900; color: var(--text); }
+        .month-title { font-size: 1.5rem; font-weight: 900; color: var(--text); }
         .nav-btn {
             background: none; border: 2px solid var(--border); color: var(--text);
-            font-size: 1.5rem; cursor: pointer; border-radius: 50%; width: 44px; height: 44px;
+            font-size: 1.2rem; cursor: pointer; border-radius: 50%; width: 40px; height: 40px;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.2s; font-weight: 900;
         }
-        .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
         .year-selector { display: flex; gap: 8px; align-items: center; }
         .year-selector select {
-            background: var(--card-bg); color: var(--text); border: 1px solid var(--border);
+            background: var(--card-bg); color: var(--text); border: 2px solid var(--border);
             border-radius: 8px; padding: 6px 10px; font-family: inherit;
-            font-weight: 700; font-size: 1rem; outline: none;
+            font-weight: 900; font-size: 1rem; outline: none;
         }
         .calendar-grid {
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
-            background: var(--card-bg); padding: 16px; border-radius: 16px;
+            display: grid; 
+            grid-template-columns: repeat(7, minmax(0, 1fr)); 
+            gap: 4px;
+            background: var(--card-bg); padding: 8px; border-radius: 16px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            width: 100%; border: 2px solid var(--border);
         }
         .day-name {
             text-align: center; font-weight: 900; color: var(--text-muted);
-            padding: 10px 0; font-size: 0.9rem;
+            padding: 8px 0; font-size: 0.75rem; 
+            white-space: nowrap; overflow: hidden;
         }
         .day-cell {
             aspect-ratio: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; border-radius: 12px;
-            font-size: 1.3rem; font-weight: 700; cursor: pointer;
-            position: relative; transition: all 0.15s; border: 2px solid transparent;
+            align-items: center; justify-content: center; border-radius: 10px;
+            font-size: 1.15rem; font-weight: 900; cursor: pointer;
+            position: relative; transition: all 0.15s; 
+            border: 2px solid var(--border); /* خطوط کاملاً ضخیم */
             background: var(--card-bg); color: var(--text);
         }
-        .day-cell:hover { background: var(--bg); }
-        .day-cell.empty { cursor: default; background: transparent; border: none; }
-        /* جمعه‌ها با مربع توپر قرمز */
-        .day-cell.friday { background: var(--friday-bg) !important; color: var(--friday-text) !important; }
-        .day-cell.today { border-color: var(--today-border); }
+        .day-cell.empty { cursor: default; background: transparent; border: 2px solid transparent; }
+        .day-cell.friday { background: var(--friday-bg) !important; color: var(--friday-text) !important; border-color: var(--friday-bg); }
+        .day-cell.today { border-color: var(--today-border); box-shadow: inset 0 0 0 2px var(--today-border); }
         .reminder-dot {
-            position: absolute; bottom: 6px; width: 6px; height: 6px;
+            position: absolute; bottom: 4px; width: 6px; height: 6px;
             background: var(--reminder-color); border-radius: 50%;
         }
+        
+        /* مدال */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
             display: none; align-items: center; justify-content: center;
             z-index: 100; padding: 20px; backdrop-filter: blur(2px);
         }
         .modal-overlay.active { display: flex; }
         .modal {
-            background: var(--card-bg); border-radius: 20px; padding: 28px;
-            max-width: 450px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            background: var(--card-bg); border-radius: 20px; padding: 24px;
+            max-width: 400px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border: 2px solid var(--border); max-height: 90vh; overflow-y: auto;
         }
-        .modal h3 { margin-bottom: 16px; font-size: 1.3rem; font-weight: 900; }
-        .modal label { display: block; margin: 12px 0 6px; font-size: 0.9rem; color: var(--text-muted); }
+        .modal h3 { margin-bottom: 16px; font-size: 1.2rem; font-weight: 900; }
+        .modal label { display: block; margin: 12px 0 6px; font-size: 0.85rem; color: var(--text-muted); font-weight: 900; }
         .modal input {
-            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+            width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--border);
             background: var(--bg); color: var(--text); font-family: inherit;
-            font-weight: 700; font-size: 1rem; outline: none;
+            font-weight: 900; font-size: 1rem; outline: none;
         }
-        .modal input:focus { border-color: var(--accent); }
-        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
         .btn {
             flex: 1; padding: 12px; border: none; border-radius: 10px;
-            font-family: inherit; font-weight: 900; font-size: 1rem;
+            font-family: inherit; font-weight: 900; font-size: 0.95rem;
             cursor: pointer; transition: opacity 0.2s;
         }
         .btn-primary { background: var(--accent); color: #fff; }
-        .btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-        .btn:hover { opacity: 0.85; }
-        .reminder-list { margin-top: 8px; max-height: 150px; overflow-y: auto; }
+        .btn-secondary { background: var(--bg); color: var(--text); border: 2px solid var(--border); }
+        
+        .btn-export {
+            width: 100%; background: #10b981; color: #fff; border: none; border-radius: 10px;
+            padding: 12px; font-family: inherit; font-weight: 900; font-size: 0.95rem;
+            cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-export:hover { background: #059669; }
+
+        .test-btn {
+            background: transparent; border: 2px solid var(--accent); color: var(--accent);
+            border-radius: 8px; padding: 8px; font-family: inherit; font-weight: 900; font-size: 0.8rem;
+            cursor: pointer; margin-top: 8px; width: 100%; transition: all 0.2s;
+        }
+        .test-btn:hover { background: rgba(233,69,96,0.1); }
+
+        .reminder-list { margin-top: 8px; max-height: 120px; overflow-y: auto; }
         .reminder-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 12px; background: var(--bg);
-            border-radius: 8px; margin-bottom: 6px; font-size: 0.9rem;
+            padding: 8px 12px; background: var(--bg); border: 1px solid var(--border);
+            border-radius: 8px; margin-bottom: 6px; font-size: 0.85rem; font-weight: 900;
         }
         .reminder-item .time { color: var(--accent); font-weight: 900; }
         .reminder-item .delete-btn {
             background: none; border: none; color: var(--text-muted);
-            cursor: pointer; font-size: 1.2rem;
+            cursor: pointer; font-size: 1.2rem; font-weight: 900;
         }
         .install-banner {
             display: none; position: fixed; bottom: 20px; left: 50%;
             transform: translateX(-50%); background: var(--accent); color: #fff;
-            padding: 14px 28px; border-radius: 50px; font-weight: 900;
+            padding: 12px 24px; border-radius: 50px; font-weight: 900;
             cursor: pointer; box-shadow: 0 4px 20px rgba(233,69,96,0.3); z-index: 200;
+            font-size: 0.9rem;
         }
         .reminder-note {
-            font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;
-            padding: 8px; background: rgba(245, 158, 11, 0.1); border-radius: 8px;
-            border-right: 3px solid var(--reminder-color);
+            font-size: 0.75rem; color: #b45309; margin-top: 8px;
+            padding: 10px; background: #fef3c7; border-radius: 8px;
+            border-right: 4px solid #f59e0b; font-weight: 700; line-height: 1.4;
+        }
+
+        @media (max-width: 400px) {
+            body { padding: 8px; }
+            header { padding: 12px; margin-bottom: 8px; }
+            .month-title { font-size: 1.2rem; }
+            .nav-btn { width: 34px; height: 34px; font-size: 1rem; }
+            .calendar-grid { padding: 4px; gap: 3px; }
+            .day-name { font-size: 0.65rem; padding: 6px 0; }
+            .day-cell { font-size: 1rem; border-radius: 8px; border-width: 2px; }
         }
     </style>
 </head>
@@ -140,10 +163,10 @@
         </header>
         <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
             <div class="year-selector">
-                <span>سال:</span>
+                <span style="font-size: 0.9rem;">سال:</span>
                 <select id="yearSelect"></select>
             </div>
-            <button class="btn btn-secondary" style="flex:none; padding:8px 16px; font-size:0.9rem;" id="todayBtn">برو به امروز</button>
+            <button class="btn btn-secondary" style="flex:none; padding:8px 12px; font-size:0.85rem;" id="todayBtn">برو به امروز</button>
         </div>
         <div class="calendar-grid" id="calendarGrid"></div>
     </div>
@@ -155,15 +178,21 @@
             <input type="text" id="reminderText" placeholder="مثلاً: پرداخت قبض">
             <label for="reminderTime">زمان (ساعت:دقیقه)</label>
             <input type="time" id="reminderTime">
+            
+            <button class="test-btn" id="testSoundBtn">🔊 تست صدای آلارم</button>
+            <button class="btn-export" id="exportBtn">📅 افزودن به تقویم گوشی</button>
+
+            <div class="reminder-note">
+                💡 <b>راهنمای آلارم در پس‌زمینه:</b> مرورگرها اجازه پخش صدا در حالت بسته را نمی‌دهند. برای اینکه در زمان بسته بودن برنامه هم آلارم گوشی‌تان زنگ بزند، پس از ذخیره، روی دکمه سبز «افزودن به تقویم گوشی» بزنید تا به تقویم اصلی گوشی منتقل شود.
+            </div>
+
             <div id="reminderListContainer">
                 <label style="margin-top:16px;">یادآورهای این روز:</label>
                 <div class="reminder-list" id="reminderList"></div>
             </div>
-            <div class="reminder-note">
-                ⚠️ یادآور فقط زمانی فعال می‌شود که این تقویم باز باشد.
-            </div>
+            
             <div class="modal-actions">
-                <button class="btn btn-primary" id="saveReminder">ذخیره یادآور</button>
+                <button class="btn btn-primary" id="saveReminder">ذخیره در برنامه</button>
                 <button class="btn btn-secondary" id="closeModal">بستن</button>
             </div>
         </div>
@@ -172,17 +201,76 @@
     <div class="install-banner" id="installBanner">📲 نصب روی دستگاه</div>
 
     <script>
-        // اجرای کدها پس از لود کامل صفحه و کتابخانه
-        window.addEventListener('DOMContentLoaded', function() {
-            if (typeof jalaali === 'undefined') {
-                alert('خطا در بارگذاری تقویم. لطفاً صفحه را رفرش کنید.');
-                return;
+        // ==========================================
+        // کدهای کامل ریاضی تقویم جلالی
+        // ==========================================
+        function div(a, b) { return ~~(a / b); }
+        function mod(a, b) { return a - ~~(a / b) * b; }
+        function jalCal(jy) {
+            var breaks = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
+            var bl = breaks.length, gy = jy + 621, leapJ = -14, jp = breaks[0], jm, jump, leap, leapG, march, n, i;
+            if (jy < jp || jy >= breaks[bl - 1]) throw new Error('سال نامعتبر: ' + jy);
+            for (i = 1; i < bl; i += 1) {
+                jm = breaks[i]; jump = jm - jp;
+                if (jy < jm) break;
+                leapJ = leapJ + div(jump, 33) * 8 + div(mod(jump, 33), 4);
+                jp = jm;
             }
+            n = jy - jp;
+            leapJ = leapJ + div(n, 33) * 8 + div(mod(n, 33) + 3, 4);
+            if (mod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
+            leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
+            march = 20 + leapJ - leapG;
+            if (jump - n < 6) n = n - jump + div(jump + 4, 33) * 33;
+            leap = mod(mod(n + 1, 33) - 1, 4);
+            if (leap === -1) leap = 4;
+            return { leap: leap, gy: gy, march: march };
+        }
+        function g2d(gy, gm, gd) {
+            var d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4) + div(153 * mod(gm + 9, 12) + 2, 5) + gd - 34840408;
+            d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
+            return d;
+        }
+        function d2g(jdn) {
+            var j = 4 * jdn + 139361631;
+            j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
+            var i = div(mod(j, 1461), 4) * 5 + 308;
+            var gd = div(mod(i, 153), 5) + 1;
+            var gm = mod(div(i, 153), 12) + 1;
+            var gy = div(j, 1461) - 100100 + div(8 - gm, 6);
+            return { gy: gy, gm: gm, gd: gd };
+        }
+        function j2d(jy, jm, jd) {
+            var r = jalCal(jy);
+            return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
+        }
+        function d2j(jdn) {
+            var gy = d2g(jdn).gy, jy = gy - 621, r = jalCal(jy);
+            var jdn1f = g2d(gy, 3, r.march), jd, jm, k;
+            k = jdn - jdn1f;
+            if (k >= 0) {
+                if (k <= 185) { jm = 1 + div(k, 31); jd = mod(k, 31) + 1; return { jy: jy, jm: jm, jd: jd }; }
+                k -= 186;
+            } else { jy -= 1; k += 179; if (r.leap === 1) k += 1; }
+            jm = 7 + div(k, 30); jd = mod(k, 30) + 1;
+            return { jy: jy, jm: jm, jd: jd };
+        }
+        function toJalaali(gy, gm, gd) { return d2j(g2d(gy, gm, gd)); }
+        function toGregorian(jy, jm, jd) { return d2g(j2d(jy, jm, jd)); }
+        function isLeapJalaaliYear(jy) { return jalCal(jy).leap === 0; }
+        function jalaaliMonthLength(jy, jm) {
+            if (jm <= 6) return 31;
+            if (jm <= 11) return 30;
+            return isLeapJalaaliYear(jy) ? 30 : 29;
+        }
+        // ==========================================
 
+        window.addEventListener('DOMContentLoaded', function() {
             var currentJy = 0, currentJm = 0;
             var reminders = {};
             var selectedDateKey = null;
             var reminderCheckInterval = null;
+            var audioCtx = null;
 
             var persianMonths = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
             var weekDays = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
@@ -198,15 +286,89 @@
             var installBanner = document.getElementById('installBanner');
 
             function toPersianNum(num) { return num.toString().replace(/\d/g, function(d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
-            
-            function getTodayJalaali() { 
-                var n = new Date(); 
-                return jalaali.toJalaali(n.getFullYear(), n.getMonth() + 1, n.getDate()); 
-            }
-            
+            function getTodayJalaali() { var n = new Date(); return toJalaali(n.getFullYear(), n.getMonth() + 1, n.getDate()); }
             function dateKey(jy, jm, jd) { return jy + '-' + jm + '-' + jd; }
 
-            // ============ Reminders ============
+            // ================= سیستم صوتی =================
+            function initAudio() {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            }
+
+            function playAlarmSound() {
+                initAudio();
+                if (!audioCtx) return;
+                var now = audioCtx.currentTime;
+                [0, 0.6, 1.2].forEach(function(delay) {
+                    var osc = audioCtx.createOscillator();
+                    var gain = audioCtx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(880, now + delay);
+                    osc.frequency.setValueAtTime(660, now + delay + 0.15);
+                    osc.frequency.setValueAtTime(880, now + delay + 0.3);
+                    gain.gain.setValueAtTime(0.3, now + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + delay + 0.5);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + delay);
+                    osc.stop(now + delay + 0.5);
+                });
+            }
+
+            function triggerAlarm(text) {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    try { new Notification('🔔 یادآور تقویم', { body: text, icon: 'icon.svg', tag: 'reminder-' + Date.now() }); } catch(e) {}
+                }
+                playAlarmSound();
+                if ("vibrate" in navigator) { navigator.vibrate([500, 200, 500, 200, 500]); }
+            }
+
+            document.getElementById('testSoundBtn').addEventListener('click', function() {
+                playAlarmSound();
+                if ("vibrate" in navigator) navigator.vibrate(200);
+                this.textContent = "✅ صدا فعال شد!";
+                setTimeout(() => { this.textContent = "🔊 تست صدای آلارم"; }, 2000);
+            });
+
+            // ================= خروجی تقویم گوشی (ICS) =================
+            document.getElementById('exportBtn').addEventListener('click', function() {
+                var text = reminderText.value.trim() || 'یادآور تقویم';
+                var time = reminderTime.value || '12:00'; // اگر ساعت خالی بود، ۱۲ ظهر
+                var parts = selectedDateKey.split('-').map(Number);
+                var g = toGregorian(parts[0], parts[1], parts[2]);
+                
+                var timeParts = time.split(':');
+                var hh = timeParts[0].padStart(2, '0');
+                var mm = timeParts[1].padStart(2, '0');
+                
+                // فرمت زمان برای فایل ICS: YYYYMMDDTHHMMSS
+                var startDate = g.gy + '' + String(g.gm).padStart(2, '0') + '' + String(g.gd).padStart(2, '0') + 'T' + hh + mm + '00';
+                var endDate = g.gy + '' + String(g.gm).padStart(2, '0') + '' + String(g.gd).padStart(2, '0') + 'T' + hh + String(parseInt(mm) + 15).padStart(2, '0') + '00'; // ۱۵ دقیقه بعد
+                
+                var icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n" +
+                                 "SUMMARY:" + text + "\n" +
+                                 "DTSTART:" + startDate + "\n" +
+                                 "DTEND:" + endDate + "\n" +
+                                 "DESCRIPTION:از برنامه تقویم شمسی\n" +
+                                 "BEGIN:VALARM\nTRIGGER:-PT0M\nACTION:DISPLAY\nDESCRIPTION:" + text + "\nEND:VALARM\n" +
+                                 "END:VEVENT\nEND:VCALENDAR";
+
+                var blob = new Blob([icsContent], {type: 'text/calendar;charset=utf-8'});
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'reminder.ics';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert('فایل تقویم دانلود شد. لطفاً آن را باز کنید تا به تقویم گوشی اضافه شود (زنگ هشدار به صورت سیستمی کار می‌کند).');
+            });
+            // =========================================================
+
             function loadReminders() {
                 var saved = localStorage.getItem('persianCalendarReminders');
                 reminders = saved ? JSON.parse(saved) : {};
@@ -228,28 +390,6 @@
                 reminders[key] = reminders[key].filter(function(r) { return r.id !== id; });
                 if (reminders[key].length === 0) delete reminders[key];
                 saveReminders();
-            }
-
-            // ============ Alarm ============
-            function triggerAlarm(text) {
-                if ('Notification' in window && Notification.permission === 'granted') {
-                    try { new Notification('🔔 یادآور تقویم', { body: text, icon: 'icon.svg', tag: 'reminder-' + Date.now() }); } catch(e) {}
-                }
-                try {
-                    var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    [880, 660, 880].forEach(function(freq, idx) {
-                        setTimeout(function() {
-                            var osc = audioCtx.createOscillator();
-                            var gain = audioCtx.createGain();
-                            osc.connect(gain); gain.connect(audioCtx.destination);
-                            osc.frequency.value = freq;
-                            gain.gain.value = 0.3;
-                            osc.start();
-                            setTimeout(function() { osc.stop(); }, 350);
-                        }, idx * 450);
-                    });
-                    setTimeout(function() { audioCtx.close(); }, 2000);
-                } catch(e) {}
             }
 
             function checkDueReminders() {
@@ -279,12 +419,11 @@
                 checkDueReminders();
             }
 
-            // ============ Render ============
             function renderCalendar(jy, jm) {
                 try {
                     var today = getTodayJalaali();
-                    var monthLen = jalaali.jalaaliMonthLength(jy, jm);
-                    var firstDayG = jalaali.toGregorian(jy, jm, 1);
+                    var monthLen = jalaaliMonthLength(jy, jm);
+                    var firstDayG = toGregorian(jy, jm, 1);
                     var firstDayDate = new Date(firstDayG.gy, firstDayG.gm - 1, firstDayG.gd);
                     var startWeekday = firstDayDate.getDay();
                     var persianWeekday = (startWeekday + 1) % 7;
@@ -311,9 +450,7 @@
                             openModal(+cell.dataset.jy, +cell.dataset.jm, +cell.dataset.jd);
                         });
                     });
-                } catch(e) {
-                    console.error(e);
-                }
+                } catch(e) { console.error(e); }
             }
 
             function updateHeader(jy, jm) { monthTitle.textContent = persianMonths[jm - 1] + ' ' + toPersianNum(jy); }
@@ -335,7 +472,6 @@
                 };
             }
 
-            // ============ Modal ============
             function openModal(jy, jm, jd) {
                 selectedDateKey = dateKey(jy, jm, jd);
                 modalDateTitle.textContent = 'یادآور برای ' + toPersianNum(jd) + ' ' + persianMonths[jm-1] + ' ' + toPersianNum(jy);
@@ -369,7 +505,6 @@
 
             function closeModal() { modalOverlay.classList.remove('active'); }
 
-            // ============ Events ============
             document.getElementById('prevMonth').onclick = function() {
                 currentJm--; if (currentJm < 1) { currentJm = 12; currentJy--; }
                 if (currentJy < 1300) currentJy = 1300;
@@ -394,11 +529,11 @@
                 reminderText.value = ''; reminderTime.value = '';
                 renderCalendar(currentJy, currentJm);
                 if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+                initAudio();
             };
             document.getElementById('closeModal').onclick = closeModal;
             modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) closeModal(); });
 
-            // ============ PWA ============
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
                     navigator.serviceWorker.register('./sw.js').catch(function(e) { console.log('SW error:', e); });
@@ -417,7 +552,6 @@
                 });
             });
 
-            // ============ Init ============
             loadReminders();
             var today = getTodayJalaali();
             currentJy = today.jy; currentJm = today.jm;
