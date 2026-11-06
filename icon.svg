@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <rect width="512" height="512" rx="100" fill="#1a1a2e"/>
+    <rect x="80" y="120" width="352" height="320" rx="24" fill="#0f0f1a" stroke="#e94560" stroke-width="8"/>
+    <rect x="80" y="120" width="352" height="70" rx="24" fill="#e94560"/>
+    <text x="256" y="340" font-size="220" font-family="Arial, sans-serif" font-weight="bold" text-anchor="middle" fill="#eaeaea">چ</text>
+</svg>
