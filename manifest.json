@@ -1,0 +1,21 @@
+{
+    "name": "تقویم شمسی هوشمند",
+    "short_name": "تقویم",
+    "description": "تقویم فارسی با یادآور و آلارم",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#0f0f1a",
+    "theme_color": "#1a1a2e",
+    "orientation": "portrait",
+    "lang": "fa",
+    "dir": "rtl",
+    "icons": [
+        {
+            "src": "icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}
