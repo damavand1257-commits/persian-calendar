@@ -5,17 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تقویم شمسی هوشمند</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="theme-color" content="#ffffff">
     <link rel="icon" type="image/svg+xml" href="icon.svg">
     <link rel="apple-touch-icon" href="icon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@700;900&display=swap" rel="stylesheet">
+    <!-- کتابخانه تقویم از CDN معتبر -->
+    <script src="https://cdn.jsdelivr.net/npm/jalaali-js@1.2.1/dist/jalaali.min.js"></script>
     <style>
         :root {
-            --bg: #0f0f1a; --card-bg: #1a1a2e; --text: #eaeaea;
-            --text-muted: #888; --accent: #e94560; --friday-bg: #e94560;
-            --friday-text: #fff; --today-border: #0f3460; --reminder-color: #f5c518;
+            /* تم روشن */
+            --bg: #f2f4f8;
+            --card-bg: #ffffff;
+            --text: #1a1a2e;
+            --text-muted: #64748b;
+            --accent: #e94560;
+            --friday-bg: #e94560;
+            --friday-text: #ffffff;
+            --today-border: #3b82f6;
+            --reminder-color: #f59e0b;
+            --border: #e2e8f0;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -29,11 +39,11 @@
         header {
             display: flex; justify-content: space-between; align-items: center;
             background: var(--card-bg); padding: 16px 24px; border-radius: 16px;
-            margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        .month-title { font-size: 1.8rem; font-weight: 900; }
+        .month-title { font-size: 1.8rem; font-weight: 900; color: var(--text); }
         .nav-btn {
-            background: none; border: 2px solid var(--text-muted); color: var(--text);
+            background: none; border: 2px solid var(--border); color: var(--text);
             font-size: 1.5rem; cursor: pointer; border-radius: 50%; width: 44px; height: 44px;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.2s; font-weight: 900;
@@ -41,14 +51,14 @@
         .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
         .year-selector { display: flex; gap: 8px; align-items: center; }
         .year-selector select {
-            background: var(--bg); color: var(--text); border: 1px solid var(--text-muted);
+            background: var(--card-bg); color: var(--text); border: 1px solid var(--border);
             border-radius: 8px; padding: 6px 10px; font-family: inherit;
-            font-weight: 700; font-size: 1rem;
+            font-weight: 700; font-size: 1rem; outline: none;
         }
         .calendar-grid {
             display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
             background: var(--card-bg); padding: 16px; border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
         .day-name {
             text-align: center; font-weight: 900; color: var(--text-muted);
@@ -59,33 +69,35 @@
             align-items: center; justify-content: center; border-radius: 12px;
             font-size: 1.3rem; font-weight: 700; cursor: pointer;
             position: relative; transition: all 0.15s; border: 2px solid transparent;
+            background: var(--card-bg); color: var(--text);
         }
-        .day-cell:hover { background: rgba(255,255,255,0.05); }
+        .day-cell:hover { background: var(--bg); }
         .day-cell.empty { cursor: default; background: transparent; border: none; }
+        /* جمعه‌ها با مربع توپر قرمز */
         .day-cell.friday { background: var(--friday-bg) !important; color: var(--friday-text) !important; }
-        .day-cell.today { border-color: var(--today-border); box-shadow: inset 0 0 0 2px var(--today-border); }
+        .day-cell.today { border-color: var(--today-border); }
         .reminder-dot {
             position: absolute; bottom: 6px; width: 6px; height: 6px;
             background: var(--reminder-color); border-radius: 50%;
         }
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.3);
             display: none; align-items: center; justify-content: center;
-            z-index: 100; padding: 20px;
+            z-index: 100; padding: 20px; backdrop-filter: blur(2px);
         }
         .modal-overlay.active { display: flex; }
         .modal {
             background: var(--card-bg); border-radius: 20px; padding: 28px;
-            max-width: 450px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            max-width: 450px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
         .modal h3 { margin-bottom: 16px; font-size: 1.3rem; font-weight: 900; }
         .modal label { display: block; margin: 12px 0 6px; font-size: 0.9rem; color: var(--text-muted); }
-        .modal input, .modal textarea {
-            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333;
+        .modal input {
+            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
             background: var(--bg); color: var(--text); font-family: inherit;
-            font-weight: 700; font-size: 1rem;
+            font-weight: 700; font-size: 1rem; outline: none;
         }
-        .modal input:focus { outline: none; border-color: var(--accent); }
+        .modal input:focus { border-color: var(--accent); }
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
         .btn {
             flex: 1; padding: 12px; border: none; border-radius: 10px;
@@ -93,12 +105,12 @@
             cursor: pointer; transition: opacity 0.2s;
         }
         .btn-primary { background: var(--accent); color: #fff; }
-        .btn-secondary { background: #333; color: var(--text); }
+        .btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
         .btn:hover { opacity: 0.85; }
         .reminder-list { margin-top: 8px; max-height: 150px; overflow-y: auto; }
         .reminder-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 12px; background: rgba(255,255,255,0.05);
+            padding: 8px 12px; background: var(--bg);
             border-radius: 8px; margin-bottom: 6px; font-size: 0.9rem;
         }
         .reminder-item .time { color: var(--accent); font-weight: 900; }
@@ -110,11 +122,11 @@
             display: none; position: fixed; bottom: 20px; left: 50%;
             transform: translateX(-50%); background: var(--accent); color: #fff;
             padding: 14px 28px; border-radius: 50px; font-weight: 900;
-            cursor: pointer; box-shadow: 0 4px 20px rgba(233,69,96,0.5); z-index: 200;
+            cursor: pointer; box-shadow: 0 4px 20px rgba(233,69,96,0.3); z-index: 200;
         }
         .reminder-note {
             font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;
-            padding: 8px; background: rgba(245,197,24,0.08); border-radius: 8px;
+            padding: 8px; background: rgba(245, 158, 11, 0.1); border-radius: 8px;
             border-right: 3px solid var(--reminder-color);
         }
     </style>
@@ -123,7 +135,7 @@
     <div class="container">
         <header>
             <button class="nav-btn" id="prevMonth">‹</button>
-            <div class="month-title" id="monthTitle">فروردین ۱۴۰۳</div>
+            <div class="month-title" id="monthTitle">...</div>
             <button class="nav-btn" id="nextMonth">›</button>
         </header>
         <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
@@ -160,268 +172,264 @@
     <div class="install-banner" id="installBanner">📲 نصب روی دستگاه</div>
 
     <script>
-    // ============ Jalaali-JS (کاملاً داخلی) ============
-    function div(a, b) { return ~~(a / b); }
-    function mod(a, b) { return a - ~~(a / b) * b; }
+        // اجرای کدها پس از لود کامل صفحه و کتابخانه
+        window.addEventListener('DOMContentLoaded', function() {
+            if (typeof jalaali === 'undefined') {
+                alert('خطا در بارگذاری تقویم. لطفاً صفحه را رفرش کنید.');
+                return;
+            }
 
-    function jalCal(jy, withoutLeap) {
-        var breaks = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
-        var bl = breaks.length, gy = jy + 621, leapJ = -14, jp = breaks[0], jm, jump, leap, leapG, march, n, i;
-        if (jy < jp || jy >= breaks[bl - 1]) throw new Error('سال نامعتبر: ' + jy);
-        for (i = 1; i < bl; i += 1) {
-            jm = breaks[i]; jump = jm - jp;
-            if (jy < jm) break;
-            leapJ = leapJ + div(jump, 33) * 8 + div(mod(jump, 33), 4);
-            jp = jm;
-        }
-        n = jy - jp;
-        leapJ = leapJ + div(n, 33) * 8 + div(mod(n, 33) + 3, 4);
-        if (mod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
-        leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
-        march = 20 + leapJ - leapG;
-        if (!withoutLeap) {
-            if (jump - n < 6) n = n - jump + div(jump + 4, 33) * 33;
-            leap = mod(mod(n + 1, 33) - 1, 4);
-            if (leap === -1) leap = 4;
-        }
-        return { leap: leap, gy: gy, march: march };
-    }
+            var currentJy = 0, currentJm = 0;
+            var reminders = {};
+            var selectedDateKey = null;
+            var reminderCheckInterval = null;
 
-    function g2d(gy, gm, gd) {
-        var d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4) + div(153 * mod(gm + 9, 12) + 2, 5) + gd - 34840408;
-        d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
-        return d;
-    }
+            var persianMonths = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+            var weekDays = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
 
-    function d2g(jdn) {
-        var j, i, gd, gm, gy;
-        j = 4 * jdn + 139361631;
-        j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
-        i = div(mod(j, 1461), 4) * 5 + 308;
-        gd = div(mod(i, 153), 5) + 1;
-        gm = mod(div(i, 153), 12) + 1;
-        gy = div(j, 1461) - 100100 + div(8 - gm, 6);
-        return { gy: gy, gm: gm, gd: gd };
-    }
+            var grid = document.getElementById('calendarGrid');
+            var monthTitle = document.getElementById('monthTitle');
+            var yearSelect = document.getElementById('yearSelect');
+            var modalOverlay = document.getElementById('modalOverlay');
+            var modalDateTitle = document.getElementById('modalDateTitle');
+            var reminderText = document.getElementById('reminderText');
+            var reminderTime = document.getElementById('reminderTime');
+            var reminderList = document.getElementById('reminderList');
+            var installBanner = document.getElementById('installBanner');
 
-    function j2d(jy, jm, jd) {
-        var r = jalCal(jy, true);
-        return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
-    }
+            function toPersianNum(num) { return num.toString().replace(/\d/g, function(d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
+            
+            function getTodayJalaali() { 
+                var n = new Date(); 
+                return jalaali.toJalaali(n.getFullYear(), n.getMonth() + 1, n.getDate()); 
+            }
+            
+            function dateKey(jy, jm, jd) { return jy + '-' + jm + '-' + jd; }
 
-    function d2j(jdn) {
-        var gy = d2g(jdn).gy, jy = gy - 621, r = jalCal(jy, false);
-        var jdn1f = g2d(gy, 3, r.march), jd, jm, k;
-        k = jdn - jdn1f;
-        if (k >= 0) {
-            if (k <= 185) { jm = 1 + div(k, 31); jd = mod(k, 31) + 1; return { jy: jy, jm: jm, jd: jd }; }
-            k -= 186;
-        } else { jy -= 1; k += 179; if (r.leap === 1) k += 1; }
-        jm = 7 + div(k, 30); jd = mod(k, 30) + 1;
-        return { jy: jy, jm: jm, jd: jd };
-    }
+            // ============ Reminders ============
+            function loadReminders() {
+                var saved = localStorage.getItem('persianCalendarReminders');
+                reminders = saved ? JSON.parse(saved) : {};
+            }
+            function saveReminders() { localStorage.setItem('persianCalendarReminders', JSON.stringify(reminders)); }
+            function getRemindersForDate(jy, jm, jd) { return reminders[dateKey(jy, jm, jd)] || []; }
 
-    function toJalaali(gy, gm, gd) { return d2j(g2d(gy, gm, gd)); }
-    function toGregorian(jy, jm, jd) { return d2g(j2d(jy, jm, jd)); }
-    function isLeapJalaaliYear(jy) { return jalCal(jy, false).leap === 0; }
-    function jalaaliMonthLength(jy, jm) {
-        if (jm <= 6) return 31;
-        if (jm <= 11) return 30;
-        return isLeapJalaaliYear(jy) ? 30 : 29;
-    }
+            function addReminder(jy, jm, jd, text, time) {
+                var key = dateKey(jy, jm, jd);
+                if (!reminders[key]) reminders[key] = [];
+                var id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+                reminders[key].push({ id: id, text: text, time: time });
+                saveReminders();
+            }
 
-    // ============ State ============
-    var currentJy = 0, currentJm = 0;
-    var reminders = {};
-    var selectedDateKey = null;
-    var reminderCheckInterval = null;
+            function deleteReminder(jy, jm, jd, id) {
+                var key = dateKey(jy, jm, jd);
+                if (!reminders[key]) return;
+                reminders[key] = reminders[key].filter(function(r) { return r.id !== id; });
+                if (reminders[key].length === 0) delete reminders[key];
+                saveReminders();
+            }
 
-    var persianMonths = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
-    var weekDays = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
+            // ============ Alarm ============
+            function triggerAlarm(text) {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    try { new Notification('🔔 یادآور تقویم', { body: text, icon: 'icon.svg', tag: 'reminder-' + Date.now() }); } catch(e) {}
+                }
+                try {
+                    var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    [880, 660, 880].forEach(function(freq, idx) {
+                        setTimeout(function() {
+                            var osc = audioCtx.createOscillator();
+                            var gain = audioCtx.createGain();
+                            osc.connect(gain); gain.connect(audioCtx.destination);
+                            osc.frequency.value = freq;
+                            gain.gain.value = 0.3;
+                            osc.start();
+                            setTimeout(function() { osc.stop(); }, 350);
+                        }, idx * 450);
+                    });
+                    setTimeout(function() { audioCtx.close(); }, 2000);
+                } catch(e) {}
+            }
 
-    var grid = document.getElementById('calendarGrid');
-    var monthTitle = document.getElementById('monthTitle');
-    var yearSelect = document.getElementById('yearSelect');
-    var modalOverlay = document.getElementById('modalOverlay');
-    var modalDateTitle = document.getElementById('modalDateTitle');
-    var reminderText = document.getElementById('reminderText');
-    var reminderTime = document.getElementById('reminderTime');
-    var reminderList = document.getElementById('reminderList');
-    var installBanner = document.getElementById('installBanner');
+            function checkDueReminders() {
+                var now = new Date();
+                var today = getTodayJalaali();
+                var nowMin = now.getHours() * 60 + now.getMinutes();
+                var todayStr = now.toDateString();
+                var key = dateKey(today.jy, today.jm, today.jd);
+                var list = reminders[key] || [];
+                list.forEach(function(r) {
+                    if (!r.time) return;
+                    var parts = r.time.split(':');
+                    var reminderMin = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                    if (nowMin >= reminderMin && nowMin < reminderMin + 5) {
+                        var firedKey = 'fired_' + key + '_' + r.id;
+                        if (localStorage.getItem(firedKey) !== todayStr) {
+                            localStorage.setItem(firedKey, todayStr);
+                            triggerAlarm(r.text);
+                        }
+                    }
+                });
+            }
 
-    function toPersianNum(num) { return num.toString().replace(/\d/g, function(d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
-    function getTodayJalaali() { var n = new Date(); return toJalaali(n.getFullYear(), n.getMonth() + 1, n.getDate()); }
-    function dateKey(jy, jm, jd) { return jy + '-' + jm + '-' + jd; }
+            function startReminderChecker() {
+                if (reminderCheckInterval) clearInterval(reminderCheckInterval);
+                reminderCheckInterval = setInterval(checkDueReminders, 30000);
+                checkDueReminders();
+            }
 
-    // ============ Reminders ============
-    function loadReminders() {
-        var saved = localStorage.getItem('persianCalendarReminders');
-        reminders = saved ? JSON.parse(saved) : {};
-    }
-    function saveReminders() { localStorage.setItem('persianCalendarReminders', JSON.stringify(reminders)); }
-    function getRemindersForDate(jy, jm, jd) { return reminders[dateKey(jy, jm, jd)] || []; }
+            // ============ Render ============
+            function renderCalendar(jy, jm) {
+                try {
+                    var today = getTodayJalaali();
+                    var monthLen = jalaali.jalaaliMonthLength(jy, jm);
+                    var firstDayG = jalaali.toGregorian(jy, jm, 1);
+                    var firstDayDate = new Date(firstDayG.gy, firstDayG.gm - 1, firstDayG.gd);
+                    var startWeekday = firstDayDate.getDay();
+                    var persianWeekday = (startWeekday + 1) % 7;
 
-    function addReminder(jy, jm, jd, text, time) {
-        var key = dateKey(jy, jm, jd);
-        if (!reminders[key]) reminders[key] = [];
-        var id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-        reminders[key].push({ id: id, text: text, time: time });
-        saveReminders();
-    }
+                    var html = '';
+                    weekDays.forEach(function(d) { html += '<div class="day-name">' + d + '</div>'; });
+                    for (var i = 0; i < persianWeekday; i++) html += '<div class="day-cell empty"></div>';
 
-    function deleteReminder(jy, jm, jd, id) {
-        var key = dateKey(jy, jm, jd);
-        if (!reminders[key]) return;
-        reminders[key] = reminders[key].filter(function(r) { return r.id !== id; });
-        if (reminders[key].length === 0) delete reminders[key];
-        saveReminders();
-    }
+                    for (var d = 1; d <= monthLen; d++) {
+                        var isFriday = (persianWeekday + d - 1) % 7 === 6;
+                        var isToday = (jy === today.jy && jm === today.jm && d === today.jd);
+                        var hasReminder = getRemindersForDate(jy, jm, d).length > 0;
+                        var classes = ['day-cell'];
+                        if (isFriday) classes.push('friday');
+                        if (isToday) classes.push('today');
+                        
+                        html += '<div class="' + classes.join(' ') + '" data-jy="' + jy + '" data-jm="' + jm + '" data-jd="' + d + '">' +
+                            toPersianNum(d) + (hasReminder ? '<span class="reminder-dot"></span>' : '') + '</div>';
+                    }
+                    grid.innerHTML = html;
 
-    // ============ Alarm ============
-    function triggerAlarm(text) {
-        // متن
-        if ('Notification' in window && Notification.permission === 'granted') {
-            try { new Notification('🔔 یادآور تقویم', { body: text, icon: 'icon.svg', tag: 'reminder-' + Date.now() }); } catch(e) {}
-        }
-        // صدا (با Web Audio API)
-        try {
-            var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            [880, 660, 880].forEach(function(freq, idx) {
-                setTimeout(function() {
-                    var osc = audioCtx.createOscillator();
-                    var gain = audioCtx.createGain();
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.frequency.value = freq;
-                    gain.gain.value = 0.3;
-                    osc.start();
-                    setTimeout(function() { osc.stop(); }, 350);
-                }, idx * 450);
-            });
-            setTimeout(function() { audioCtx.close(); }, 2000);
-        } catch(e) {}
-    }
-
-    function checkDueReminders() {
-        var now = new Date();
-        var today = getTodayJalaali();
-        var nowMin = now.getHours() * 60 + now.getMinutes();
-        var todayStr = now.toDateString();
-        var key = dateKey(today.jy, today.jm, today.jd);
-        var list = reminders[key] || [];
-        list.forEach(function(r) {
-            if (!r.time) return;
-            var parts = r.time.split(':');
-            var reminderMin = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-            // ۵ دقیقه بازه برای اطمینان از فعال‌سازی
-            if (nowMin >= reminderMin && nowMin < reminderMin + 5) {
-                var firedKey = 'fired_' + key + '_' + r.id;
-                if (localStorage.getItem(firedKey) !== todayStr) {
-                    localStorage.setItem(firedKey, todayStr);
-                    triggerAlarm(r.text);
+                    grid.querySelectorAll('.day-cell:not(.empty)').forEach(function(cell) {
+                        cell.addEventListener('click', function() {
+                            openModal(+cell.dataset.jy, +cell.dataset.jm, +cell.dataset.jd);
+                        });
+                    });
+                } catch(e) {
+                    console.error(e);
                 }
             }
-        });
-    }
 
-    function startReminderChecker() {
-        if (reminderCheckInterval) clearInterval(reminderCheckInterval);
-        reminderCheckInterval = setInterval(checkDueReminders, 30000);
-        checkDueReminders();
-    }
+            function updateHeader(jy, jm) { monthTitle.textContent = persianMonths[jm - 1] + ' ' + toPersianNum(jy); }
 
-    // ============ Render ============
-    function renderCalendar(jy, jm) {
-        var today = getTodayJalaali();
-        var monthLen = jalaaliMonthLength(jy, jm);
-        var firstDayG = toGregorian(jy, jm, 1);
-        var firstDayDate = new Date(firstDayG.gy, firstDayG.gm - 1, firstDayG.gd);
-        var startWeekday = firstDayDate.getDay();
-        var persianWeekday = (startWeekday + 1) % 7;
+            function populateYearSelect() {
+                var today = getTodayJalaali();
+                var start = today.jy - 10, end = today.jy + 10;
+                yearSelect.innerHTML = '';
+                for (var y = start; y <= end; y++) {
+                    var opt = document.createElement('option');
+                    opt.value = y; opt.textContent = toPersianNum(y);
+                    if (y === currentJy) opt.selected = true;
+                    yearSelect.appendChild(opt);
+                }
+                yearSelect.onchange = function() {
+                    currentJy = +yearSelect.value; currentJm = 1;
+                    updateHeader(currentJy, currentJm);
+                    renderCalendar(currentJy, currentJm);
+                };
+            }
 
-        var html = '';
-        weekDays.forEach(function(d) { html += '<div class="day-name">' + d + '</div>'; });
-        for (var i = 0; i < persianWeekday; i++) html += '<div class="day-cell empty"></div>';
+            // ============ Modal ============
+            function openModal(jy, jm, jd) {
+                selectedDateKey = dateKey(jy, jm, jd);
+                modalDateTitle.textContent = 'یادآور برای ' + toPersianNum(jd) + ' ' + persianMonths[jm-1] + ' ' + toPersianNum(jy);
+                reminderText.value = ''; reminderTime.value = '';
+                renderReminderList(jy, jm, jd);
+                modalOverlay.classList.add('active');
+                if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+            }
 
-        for (var d = 1; d <= monthLen; d++) {
-            var isFriday = (persianWeekday + d - 1) % 7 === 6;
-            var isToday = (jy === today.jy && jm === today.jm && d === today.jd);
-            var hasReminder = getRemindersForDate(jy, jm, d).length > 0;
-            var classes = ['day-cell'];
-            if (isFriday) classes.push('friday');
-            if (isToday) classes.push('today');
-            html += '<div class="' + classes.join(' ') + '" data-jy="' + jy + '" data-jm="' + jm + '" data-jd="' + d + '">' +
-                toPersianNum(d) + (hasReminder ? '<span class="reminder-dot"></span>' : '') + '</div>';
-        }
-        grid.innerHTML = html;
+            function renderReminderList(jy, jm, jd) {
+                var list = getRemindersForDate(jy, jm, jd);
+                if (list.length === 0) {
+                    reminderList.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">هیچ یادآوری ثبت نشده.</div>';
+                    return;
+                }
+                reminderList.innerHTML = list.map(function(r) {
+                    return '<div class="reminder-item">' +
+                        '<span><span class="time">' + (r.time ? toPersianNum(r.time) : 'بدون زمان') + '</span> — ' + r.text + '</span>' +
+                        '<button class="delete-btn" data-id="' + r.id + '">✕</button></div>';
+                }).join('');
+                reminderList.querySelectorAll('.delete-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        var parts = selectedDateKey.split('-').map(Number);
+                        deleteReminder(parts[0], parts[1], parts[2], btn.dataset.id);
+                        renderReminderList(parts[0], parts[1], parts[2]);
+                        renderCalendar(currentJy, currentJm);
+                    });
+                });
+            }
 
-        grid.querySelectorAll('.day-cell:not(.empty)').forEach(function(cell) {
-            cell.addEventListener('click', function() {
-                openModal(+cell.dataset.jy, +cell.dataset.jm, +cell.dataset.jd);
+            function closeModal() { modalOverlay.classList.remove('active'); }
+
+            // ============ Events ============
+            document.getElementById('prevMonth').onclick = function() {
+                currentJm--; if (currentJm < 1) { currentJm = 12; currentJy--; }
+                if (currentJy < 1300) currentJy = 1300;
+                updateHeader(currentJy, currentJm); renderCalendar(currentJy, currentJm); populateYearSelect();
+            };
+            document.getElementById('nextMonth').onclick = function() {
+                currentJm++; if (currentJm > 12) { currentJm = 1; currentJy++; }
+                updateHeader(currentJy, currentJm); renderCalendar(currentJy, currentJm); populateYearSelect();
+            };
+            document.getElementById('todayBtn').onclick = function() {
+                var t = getTodayJalaali();
+                currentJy = t.jy; currentJm = t.jm;
+                updateHeader(currentJy, currentJm); renderCalendar(currentJy, currentJm); populateYearSelect();
+            };
+            document.getElementById('saveReminder').onclick = function() {
+                var text = reminderText.value.trim();
+                if (!text) { alert('لطفاً متن یادآور را وارد کنید.'); return; }
+                var time = reminderTime.value;
+                var parts = selectedDateKey.split('-').map(Number);
+                addReminder(parts[0], parts[1], parts[2], text, time);
+                renderReminderList(parts[0], parts[1], parts[2]);
+                reminderText.value = ''; reminderTime.value = '';
+                renderCalendar(currentJy, currentJm);
+                if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+            };
+            document.getElementById('closeModal').onclick = closeModal;
+            modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) closeModal(); });
+
+            // ============ PWA ============
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('./sw.js').catch(function(e) { console.log('SW error:', e); });
+                });
+            }
+            var deferredPrompt;
+            window.addEventListener('beforeinstallprompt', function(e) {
+                e.preventDefault(); deferredPrompt = e; installBanner.style.display = 'block';
             });
-        });
-    }
+            installBanner.addEventListener('click', function() {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(function(res) {
+                    if (res.outcome === 'accepted') installBanner.style.display = 'none';
+                    deferredPrompt = null;
+                });
+            });
 
-    function updateHeader(jy, jm) { monthTitle.textContent = persianMonths[jm - 1] + ' ' + toPersianNum(jy); }
-
-    function populateYearSelect() {
-        var today = getTodayJalaali();
-        var start = today.jy - 10, end = today.jy + 10;
-        yearSelect.innerHTML = '';
-        for (var y = start; y <= end; y++) {
-            var opt = document.createElement('option');
-            opt.value = y; opt.textContent = toPersianNum(y);
-            if (y === currentJy) opt.selected = true;
-            yearSelect.appendChild(opt);
-        }
-        yearSelect.onchange = function() {
-            currentJy = +yearSelect.value; currentJm = 1;
+            // ============ Init ============
+            loadReminders();
+            var today = getTodayJalaali();
+            currentJy = today.jy; currentJm = today.jm;
             updateHeader(currentJy, currentJm);
             renderCalendar(currentJy, currentJm);
-        };
-    }
-
-    // ============ Modal ============
-    function openModal(jy, jm, jd) {
-        selectedDateKey = dateKey(jy, jm, jd);
-        modalDateTitle.textContent = 'یادآور برای ' + toPersianNum(jd) + ' ' + persianMonths[jm-1] + ' ' + toPersianNum(jy);
-        reminderText.value = ''; reminderTime.value = '';
-        renderReminderList(jy, jm, jd);
-        modalOverlay.classList.add('active');
-        if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
-    }
-
-    function renderReminderList(jy, jm, jd) {
-        var list = getRemindersForDate(jy, jm, jd);
-        if (list.length === 0) {
-            reminderList.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">هیچ یادآوری ثبت نشده.</div>';
-            return;
-        }
-        reminderList.innerHTML = list.map(function(r) {
-            return '<div class="reminder-item">' +
-                '<span><span class="time">' + (r.time ? toPersianNum(r.time) : 'بدون زمان') + '</span> — ' + r.text + '</span>' +
-                '<button class="delete-btn" data-id="' + r.id + '">✕</button></div>';
-        }).join('');
-        reminderList.querySelectorAll('.delete-btn').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                var parts = selectedDateKey.split('-').map(Number);
-                deleteReminder(parts[0], parts[1], parts[2], btn.dataset.id);
-                renderReminderList(parts[0], parts[1], parts[2]);
-                renderCalendar(currentJy, currentJm);
+            populateYearSelect();
+            startReminderChecker();
+            
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) checkDueReminders();
             });
         });
-    }
-
-    function closeModal() { modalOverlay.classList.remove('active'); }
-
-    // ============ Events ============
-    document.getElementById('prevMonth').onclick = function() {
-        currentJm--; if (currentJm < 1) { currentJm = 12; currentJy--; }
-        if (currentJy < 1300) currentJy = 1300;
-        updateHeader(currentJy, currentJm); renderCalendar(currentJy, currentJm); populateYearSelect();
-    };
-    document.getElementById('nextMonth').onclick = function() {
-        currentJm++; if (currentJm > 12) { currentJm = 1; currentJy++; }
-        updateHeader(currentJy, currentJm); renderCalendar(currentJy, currentJm); populateYearSelect();
-    };
-  
+    </script>
+</body>
+</html>
